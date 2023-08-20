@@ -4,9 +4,10 @@ import styles from './CountryList.module.css';
 import CountryItem from './CountryItem';
 import Message from './Message';
 
-import PropTypes from 'prop-types';
+import { useCities } from '../contexts/CitiesContext';
 
-function CountryList({ cities, isLoading }) {
+function CountryList() {
+  const { cities, isLoading } = useCities();
   console.log(cities);
 
   if (isLoading) return <Spinner />;
@@ -30,15 +31,5 @@ function CountryList({ cities, isLoading }) {
     </ul>
   );
 }
-
-CountryList.propTypes = {
-  cities: PropTypes.arrayOf(
-    PropTypes.shape({
-      country: PropTypes.string.isRequired,
-      emoji: PropTypes.string.isRequired,
-    })
-  ).isRequired,
-  isLoading: PropTypes.bool.isRequired,
-};
 
 export default CountryList;

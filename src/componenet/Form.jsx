@@ -1,7 +1,8 @@
 // "https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=0&longitude=0"
 
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useURLPosition } from '../hook/useURLPosition';
+import BackButton from './BackButton';
 import Button from './Button';
 
 import styles from './Form.module.css';
@@ -15,12 +16,36 @@ export function convertToEmoji(countryCode) {
 }
 
 function Form() {
-  const navigate = useNavigate();
+  const [lat, lng] = useURLPosition();
 
   const [cityName, setCityName] = useState('');
   const [country, setCountry] = useState(''); //eslint-disable-line
   const [date, setDate] = useState(new Date());
   const [notes, setNotes] = useState('');
+  const [emoji, setEmoji] = useState(''); //eslint-disable-line
+
+  const [isLoadingGeolocation, setIsLoadingGeolocation] = useState(false); //eslint-disable-line
+
+  useEffect(() => {
+    async function fetchCityData() {
+      try {
+        setIsLoadingGeolocation(true);
+        const res = await fetch(
+          `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}`
+        );
+        const data = await res.json();
+        console.log(data);
+        setCityName(data.city || data.locality || '');
+        setCountry(data.countryName);
+        setEmoji(convertToEmoji(data.countryCode));
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setIsLoadingGeolocation(false);
+      }
+    }
+    fetchCityData();
+  }, [lat, lng]);
 
   return (
     <form className={styles.form}>
@@ -31,7 +56,7 @@ function Form() {
           onChange={(e) => setCityName(e.target.value)}
           value={cityName}
         />
-        {/* <span className={styles.flag}>{emoji}</span> */}
+        <span className={styles.flag}>{emoji}</span>
       </div>
 
       <div className={styles.row}>
@@ -54,15 +79,7 @@ function Form() {
 
       <div className={styles.buttons}>
         <Button type="primary">Add</Button>
-        <Button
-          type="back"
-          onClick={(e) => {
-            e.preventDefault();
-            navigate(-1);
-          }}
-        >
-          &larr; Back
-        </Button>
+        <BackButton />
       </div>
     </form>
   );
