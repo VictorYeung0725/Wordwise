@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react';
 import ReactDatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import { useNavigate } from 'react-router-dom';
+import { useCities } from '../contexts/CitiesContext';
 
 import { useURLPosition } from '../hook/useURLPosition';
 import BackButton from './BackButton';
@@ -22,6 +24,8 @@ export function convertToEmoji(countryCode) {
 
 function Form() {
   const [lat, lng] = useURLPosition();
+  const { createCity, isLoading } = useCities();
+  const navigate = useNavigate();
 
   const [cityName, setCityName] = useState('');
   const [country, setCountry] = useState(''); //eslint-disable-line
@@ -59,7 +63,7 @@ function Form() {
     fetchCityData();
   }, [lat, lng]);
 
-  function handleSubmmit(e) {
+  async function handleSubmmit(e) {
     e.preventDefault();
 
     if (!cityName || !date) return;
@@ -72,7 +76,8 @@ function Form() {
       notes,
       position: { lat, lng },
     };
-    console.log(newCity);
+    await createCity(newCity);
+    navigate('/app');
   }
 
   if (isLoadingGeolocation) return <Spinner />;
@@ -82,7 +87,10 @@ function Form() {
   if (error) return <Message message={error} />;
 
   return (
-    <form className={styles.form} onSubmit={handleSubmmit}>
+    <form
+      className={`${styles.form} ${isLoading ? styles.loading : ''}`}
+      onSubmit={handleSubmmit}
+    >
       <div className={styles.row}>
         <label htmlFor="cityName">City name</label>
         <input
