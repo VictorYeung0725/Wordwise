@@ -61,6 +61,18 @@ function Form() {
 
   function handleSubmmit(e) {
     e.preventDefault();
+
+    if (!cityName || !date) return;
+
+    const newCity = {
+      cityName,
+      country,
+      emoji,
+      date,
+      notes,
+      position: { lat, lng },
+    };
+    console.log(newCity);
   }
 
   if (isLoadingGeolocation) return <Spinner />;
