@@ -24,7 +24,7 @@ function reducer(state, action) {
       return {
         ...state,
         isLoading: false,
-        currentCity: action.payload,
+        cities: action.payload,
       };
 
     case 'city/loaded':
